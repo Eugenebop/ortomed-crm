@@ -129,9 +129,11 @@ const toast = ref('')
 const form = ref({ name: '', parent_names: '', phone: '' })
 const apptForm = ref({ scheduled_at: '', status: 'confirmed', notes: '' })
 
-onMounted(async () => {
-  const { data } = await supabase.from('patients').select('*').order('created_at', { ascending: false })
-  patients.value = data || []
+onMounted(() => {
+  const cookie = useCookie('admin_auth')
+  if (cookie.value !== 'true') {
+    window.location.href = '/login'
+  }
 })
 
 const addPatient = async () => {
