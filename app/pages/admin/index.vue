@@ -1,21 +1,17 @@
 <template>
   <div class="min-h-screen bg-gray-50">
-    <div class="max-w-4xl mx-auto px-4 py-8">
+    <div v-if="authorized" class="max-w-4xl mx-auto px-4 py-8">
 
       <div class="flex items-center justify-between mb-8">
         <div>
           <h1 class="text-2xl font-bold text-gray-900">Пациенты</h1>
           <p class="text-sm text-gray-500 mt-1">Ortomed CRM</p>
         </div>
-        <button
-          @click="showForm = !showForm"
-          class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-        >
+        <button @click="showForm = !showForm" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
           + Добавить пациента
         </button>
       </div>
 
-      <!-- Форма добавления пациента -->
       <div v-if="showForm" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
         <h2 class="text-lg font-semibold text-gray-800 mb-4">Новый пациент</h2>
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -38,12 +34,9 @@
         </div>
       </div>
 
-      <!-- Форма назначения занятия -->
       <div v-if="selectedPatient" class="bg-white rounded-xl shadow-sm border border-blue-200 p-6 mb-6">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-semibold text-gray-800">
-            Занятие для <span class="text-blue-600">{{ selectedPatient.name }}</span>
-          </h2>
+          <h2 class="text-lg font-semibold text-gray-800">Занятие для <span class="text-blue-600">{{ selectedPatient.name }}</span></h2>
           <button @click="selectedPatient = null" class="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
         </div>
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -70,7 +63,6 @@
         </div>
       </div>
 
-      <!-- Таблица пациентов -->
       <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <table class="w-full text-sm">
           <thead class="bg-gray-50 border-b border-gray-200">
@@ -89,18 +81,8 @@
               <td class="px-6 py-4 text-gray-600">{{ p.phone }}</td>
               <td class="px-6 py-4">
                 <div class="flex gap-2">
-                  <button
-                    @click="selectPatient(p)"
-                    class="text-blue-600 hover:text-blue-800 font-medium text-xs border border-blue-200 hover:border-blue-400 rounded-lg px-3 py-1.5 transition-colors"
-                  >
-                    + Занятие
-                  </button>
-                  <button
-                    @click="copyLink(p.id)"
-                    class="text-gray-600 hover:text-gray-800 font-medium text-xs border border-gray-200 hover:border-gray-400 rounded-lg px-3 py-1.5 transition-colors"
-                  >
-                    Ссылка
-                  </button>
+                  <button @click="selectPatient(p)" class="text-blue-600 hover:text-blue-800 font-medium text-xs border border-blue-200 hover:border-blue-400 rounded-lg px-3 py-1.5 transition-colors">+ Занятие</button>
+                  <button @click="copyLink(p.id)" class="text-gray-600 hover:text-gray-800 font-medium text-xs border border-gray-200 hover:border-gray-400 rounded-lg px-3 py-1.5 transition-colors">Ссылка</button>
                 </div>
               </td>
             </tr>
@@ -111,11 +93,7 @@
         </table>
       </div>
 
-      <!-- Уведомление -->
-      <div v-if="toast" class="fixed bottom-6 right-6 bg-gray-900 text-white text-sm px-4 py-3 rounded-xl shadow-lg transition-all">
-        {{ toast }}
-      </div>
-
+      <div v-if="toast" class="fixed bottom-6 right-6 bg-gray-900 text-white text-sm px-4 py-3 rounded-xl shadow-lg">{{ toast }}</div>
     </div>
   </div>
 </template>
@@ -126,14 +104,19 @@ const patients = ref([])
 const showForm = ref(false)
 const selectedPatient = ref(null)
 const toast = ref('')
+const authorized = ref(false)
 const form = ref({ name: '', parent_names: '', phone: '' })
 const apptForm = ref({ scheduled_at: '', status: 'confirmed', notes: '' })
 
-onMounted(() => {
+onMounted(async () => {
   const cookie = useCookie('admin_auth')
   if (cookie.value !== 'true') {
     window.location.href = '/login'
+    return
   }
+  authorized.value = true
+  const { data } = await supabase.from('patients').select('*').order('created_at', { ascending: false })
+  patients.value = data || []
 })
 
 const addPatient = async () => {
