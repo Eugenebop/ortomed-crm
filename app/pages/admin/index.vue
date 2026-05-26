@@ -120,7 +120,7 @@ const apptForm = ref({ scheduled_at: '', status: 'confirmed', notes: '' })
 onMounted(async () => {
   const hasAuth = document.cookie.includes('admin_auth=true')
   if (!hasAuth) {
-    window.location.href = '/login'
+    window.location.href = '/admin/login'
     return
   }
   authorized.value = true
