@@ -5,7 +5,6 @@ export default defineEventHandler(async (event) => {
     if (body.password === correct) {
         setCookie(event, 'admin_auth', 'true', {
             maxAge: 60 * 60 * 24 * 30,
-            httpOnly: true,
             sameSite: 'strict'
         })
         return { ok: true }
