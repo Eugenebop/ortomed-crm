@@ -7,17 +7,39 @@
         <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">О</div>
         <span class="font-semibold text-gray-900">Ortomed</span>
       </div>
-      <a href="/login" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+
+      <!-- Не авторизован -->
+      <a v-if="!patient" href="/login" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
         Войти
       </a>
+
+      <!-- Авторизован -->
+      <div v-else class="relative">
+        <button @click="menuOpen = !menuOpen" class="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg transition-colors">
+          <div class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
+            {{ patient.name[0] }}
+          </div>
+          <span class="text-sm font-medium text-gray-900">{{ patient.name }}</span>
+          <span class="text-gray-400 text-xs">▾</span>
+        </button>
+
+        <div v-if="menuOpen" class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-10">
+          <a href="/lk" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
+            👤 Личный кабинет
+          </a>
+          <button @click="logout" class="w-full text-left px-4 py-2.5 text-sm text-red-500 hover:bg-gray-50">
+            Выйти
+          </button>
+        </div>
+      </div>
     </nav>
 
     <!-- Герой -->
     <div class="max-w-5xl mx-auto px-6 py-20 text-center">
       <h1 class="text-4xl font-bold text-gray-900 mb-4">Ортопедическая клиника<br>для детей и взрослых</h1>
       <p class="text-lg text-gray-500 mb-8 max-w-xl mx-auto">Профессиональная помощь ортопеда и реабилитолога. Индивидуальный подход к каждому пациенту.</p>
-      <a href="/login" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium px-8 py-3 rounded-xl transition-colors text-lg">
-        Личный кабинет
+      <a :href="patient ? '/lk' : '/login'" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium px-8 py-3 rounded-xl transition-colors text-lg">
+        {{ patient ? 'Перейти в кабинет' : 'Личный кабинет' }}
       </a>
     </div>
 
@@ -69,3 +91,28 @@
 
   </div>
 </template>
+
+<script setup>
+const supabase = useSupabaseClient()
+const patient = ref(null)
+const menuOpen = ref(false)
+
+onMounted(async () => {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return
+
+  const { data } = await supabase
+    .from('patients')
+    .select('name')
+    .eq('user_id', user.id)
+    .single()
+
+  patient.value = data
+})
+
+const logout = async () => {
+  await supabase.auth.signOut()
+  patient.value = null
+  menuOpen.value = false
+}
+</script>
