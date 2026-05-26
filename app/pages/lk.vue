@@ -15,17 +15,28 @@
           📞 Связаться с администратором
         </a>
       </div>
+
       <div class="bg-white rounded-2xl shadow-lg p-6">
-        <h2 class="text-base font-semibold text-gray-800 mb-4">Ближайшее занятие</h2>
-        <div v-if="nextAppointment">
-          <p class="text-2xl font-bold text-gray-900">{{ formatDate(nextAppointment.scheduled_at) }}</p>
-          <span class="inline-block mt-2 px-3 py-1 rounded-full text-xs font-medium" :class="{'bg-green-100 text-green-700': nextAppointment.status === 'confirmed', 'bg-yellow-100 text-yellow-700': nextAppointment.status === 'pending', 'bg-red-100 text-red-700': nextAppointment.status === 'cancelled'}">
-            {{ statusLabel(nextAppointment.status) }}
-          </span>
+        <h2 class="text-base font-semibold text-gray-800 mb-4">Занятия</h2>
+        <div v-if="appointments.length > 0" class="space-y-3">
+          <div v-for="appt in appointments" :key="appt.id" class="border border-gray-100 rounded-xl p-4">
+            <p class="font-semibold text-gray-900">{{ formatDate(appt.scheduled_at) }}</p>
+            <span
+              class="inline-block mt-1 px-3 py-1 rounded-full text-xs font-medium"
+              :class="{
+                'bg-green-100 text-green-700': appt.status === 'confirmed',
+                'bg-yellow-100 text-yellow-700': appt.status === 'pending',
+                'bg-red-100 text-red-700': appt.status === 'cancelled',
+              }"
+            >
+              {{ statusLabel(appt.status) }}
+            </span>
+          </div>
         </div>
         <div v-else class="text-gray-400 text-sm">Занятий не запланировано</div>
       </div>
     </div>
+
     <div v-else class="bg-white rounded-2xl shadow-lg p-8 text-center max-w-sm w-full">
       <div class="text-4xl mb-4">🔒</div>
       <h2 class="text-lg font-semibold text-gray-800 mb-2">Ссылка недействительна</h2>
@@ -38,7 +49,7 @@
 const route = useRoute()
 const supabase = useSupabaseClient()
 const patient = ref(null)
-const nextAppointment = ref(null)
+const appointments = ref([])
 
 onMounted(async () => {
   const token = route.query.token
@@ -51,15 +62,13 @@ onMounted(async () => {
     .single()
   if (!link) return
   patient.value = link.patients
-  const { data: appt } = await supabase
+  const { data } = await supabase
     .from('appointments')
     .select('*')
     .eq('patient_id', link.patient_id)
     .gte('scheduled_at', new Date().toISOString())
     .order('scheduled_at', { ascending: true })
-    .limit(1)
-    .single()
-  nextAppointment.value = appt
+  appointments.value = data || []
 })
 
 const formatDate = (dt) => new Date(dt).toLocaleString('ru-RU', {
