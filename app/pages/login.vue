@@ -14,7 +14,7 @@
       </div>
       <p v-if="error" class="text-red-500 text-sm mb-4">{{ error }}</p>
       <button @click="login" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-xl transition-colors">
-        Войти
+        Войти.
       </button>
     </div>
   </div>
