@@ -38,7 +38,9 @@ const login = async () => {
     })
     console.log('response', data)
     if (data?.ok) {
-      window.location.href = '/admin'
+      setTimeout(() => {
+        window.location.href = '/admin'
+      }, 300)
     } else {
       error.value = true
     }
