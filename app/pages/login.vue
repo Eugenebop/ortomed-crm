@@ -28,17 +28,22 @@ const password = ref('')
 const error = ref(false)
 
 const login = async () => {
+
+
+  console.log('login called', password.value)
   try {
     const data = await $fetch('/api/login', {
       method: 'POST',
       body: { password: password.value }
     })
+    console.log('response', data)
     if (data?.ok) {
       window.location.href = '/admin'
     } else {
       error.value = true
     }
-  } catch {
+  } catch (e) {
+    console.error('error', e)
     error.value = true
   }
 }
