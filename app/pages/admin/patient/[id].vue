@@ -4,7 +4,6 @@
 
       <a href="/admin" class="text-gray-400 hover:text-gray-600 text-sm mb-6 inline-block">← Назад</a>
 
-      <!-- Инфо о пациенте -->
       <div v-if="patient" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
         <div class="flex items-start justify-between mb-6">
           <h2 class="text-lg font-semibold text-gray-800">Информация о пациенте</h2>
@@ -12,7 +11,7 @@
             <span :class="patient.active !== false ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'" class="px-3 py-1 rounded-full text-xs font-medium">
               {{ patient.active !== false ? 'Активен' : 'Неактивен' }}
             </span>
-            <button @click="toggleActive" :class="patient.active !== false ? 'text-red-500 hover:text-red-700' : 'text-green-500 hover:text-green-700'" class="text-xs font-medium border rounded-lg px-3 py-1.5" :style="patient.active !== false ? 'border-color: #fca5a5' : 'border-color: #86efac'">
+            <button @click="toggleActive" :class="patient.active !== false ? 'text-red-500 border-red-200' : 'text-green-500 border-green-200'" class="text-xs font-medium border rounded-lg px-3 py-1.5">
               {{ patient.active !== false ? 'Деактивировать' : 'Активировать' }}
             </button>
           </div>
@@ -43,13 +42,10 @@
         </div>
       </div>
 
-      <!-- Занятия -->
       <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <h2 class="text-base font-semibold text-gray-800">Занятия</h2>
-          <button @click="showApptForm = !showApptForm" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
-            + Добавить
-          </button>
+          <button @click="showApptForm = !showApptForm" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">+ Добавить</button>
         </div>
 
         <div v-if="showApptForm" class="px-6 py-4 border-b border-gray-100 bg-blue-50">
@@ -138,11 +134,21 @@ onMounted(async () => {
 
   const { data: p } = await supabase.from('patients').select('*').eq('id', route.params.id).single()
   patient.value = p
+
+  let email = ''
+  if (p.user_id) {
+    const res = await $fetch('/api/get-user-email', {
+      method: 'POST',
+      body: { user_id: p.user_id }
+    })
+    email = res.email || ''
+  }
+
   editForm.value = {
     name: p.name,
     parent_names: p.parent_names,
     phone: p.phone,
-    email: p.email || ''
+    email
   }
 
   await loadAppointments()
@@ -168,8 +174,7 @@ const savePatient = async () => {
 }
 
 const resetPassword = async () => {
-  const { data: { user } } = await supabase.auth.admin?.getUserById?.(patient.value.user_id) || {}
-  const email = editForm.value.email || patient.value.email
+  const email = editForm.value.email
   if (!email) {
     showToast('Email не указан')
     return
