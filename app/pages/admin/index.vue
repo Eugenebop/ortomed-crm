@@ -84,7 +84,7 @@
           <tbody class="divide-y divide-gray-100">
             <tr v-for="p in patients" :key="p.id" class="hover:bg-gray-50 transition-colors">
               <td class="px-6 py-4">
-                <div class="font-medium text-gray-900">{{ p.name }}</div>
+                <a :href="`/admin/patient/${p.id}`" class="font-medium text-gray-900 hover:text-blue-600 cursor-pointer">{{ p.name }}</a>
                 <div class="text-gray-500 text-xs mt-0.5">{{ p.parent_names }}</div>
               </td>
               <td class="px-6 py-4 text-gray-600">{{ p.phone }}</td>
