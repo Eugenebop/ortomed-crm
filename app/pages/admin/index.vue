@@ -14,7 +14,7 @@
 
       <div v-if="showForm" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
         <h2 class="text-lg font-semibold text-gray-800 mb-4">Новый пациент</h2>
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Имя пациента</label>
             <input v-model="form.name" placeholder="Олег" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"/>
@@ -27,7 +27,16 @@
             <label class="block text-sm font-medium text-gray-700 mb-1">Телефон</label>
             <input v-model="form.phone" placeholder="+375 29 123 45 67" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"/>
           </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Email (для входа)</label>
+            <input v-model="form.email" placeholder="parent@email.com" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Пароль (для входа)</label>
+            <input v-model="form.password" type="password" placeholder="минимум 6 символов" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+          </div>
         </div>
+        <p v-if="formError" class="text-red-500 text-sm mt-3">{{ formError }}</p>
         <div class="flex gap-3 mt-4">
           <button @click="addPatient" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">Сохранить</button>
           <button @click="showForm = false" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors">Отмена</button>
@@ -82,7 +91,6 @@
               <td class="px-6 py-4">
                 <div class="flex gap-2">
                   <button @click="selectPatient(p)" class="text-blue-600 hover:text-blue-800 font-medium text-xs border border-blue-200 hover:border-blue-400 rounded-lg px-3 py-1.5 transition-colors">+ Занятие</button>
-                  <button @click="copyLink(p.id)" class="text-gray-600 hover:text-gray-800 font-medium text-xs border border-gray-200 hover:border-gray-400 rounded-lg px-3 py-1.5 transition-colors">Ссылка</button>
                 </div>
               </td>
             </tr>
@@ -104,8 +112,9 @@ const patients = ref([])
 const showForm = ref(false)
 const selectedPatient = ref(null)
 const toast = ref('')
+const formError = ref('')
 const authorized = ref(false)
-const form = ref({ name: '', parent_names: '', phone: '' })
+const form = ref({ name: '', parent_names: '', phone: '', email: '', password: '' })
 const apptForm = ref({ scheduled_at: '', status: 'confirmed', notes: '' })
 
 onMounted(async () => {
@@ -120,9 +129,21 @@ onMounted(async () => {
 })
 
 const addPatient = async () => {
-  const { data } = await supabase.from('patients').insert(form.value).select().single()
-  patients.value.unshift(data)
-  form.value = { name: '', parent_names: '', phone: '' }
+  formError.value = ''
+  if (!form.value.email || !form.value.password) {
+    formError.value = 'Email и пароль обязательны'
+    return
+  }
+  const data = await $fetch('/api/create-patient', {
+    method: 'POST',
+    body: form.value
+  })
+  if (!data.ok) {
+    formError.value = data.error || 'Ошибка'
+    return
+  }
+  patients.value.unshift(data.patient)
+  form.value = { name: '', parent_names: '', phone: '', email: '', password: '' }
   showForm.value = false
   showToast('Пациент добавлен')
 }
@@ -142,13 +163,6 @@ const addAppointment = async () => {
   })
   selectedPatient.value = null
   showToast('Занятие назначено')
-}
-
-const copyLink = async (patientId) => {
-  const { data } = await supabase.from('magic_links').insert({ patient_id: patientId }).select().single()
-  const url = `${window.location.origin}/lk?token=${data.token}`
-  await navigator.clipboard.writeText(url)
-  showToast('Ссылка скопирована!')
 }
 
 const showToast = (msg) => {
