@@ -5,10 +5,9 @@ export default defineEventHandler(async (event) => {
   
   const supabase = createClient(
     process.env.SUPABASE_URL!,
-    process.env.NUXT_SUPABASE_SECRET_KEY!
+    process.env.SUPABASE_SERVICE_KEY!
   )
 
-  // Создаём пользователя в Auth
   const { data: authUser, error: authError } = await supabase.auth.admin.createUser({
     email: body.email,
     password: body.password,
@@ -19,7 +18,6 @@ export default defineEventHandler(async (event) => {
     return { ok: false, error: authError.message }
   }
 
-  // Создаём пациента с привязкой к user_id
   const { data: patient, error: patientError } = await supabase
     .from('patients')
     .insert({
