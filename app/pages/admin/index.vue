@@ -109,8 +109,8 @@ const form = ref({ name: '', parent_names: '', phone: '' })
 const apptForm = ref({ scheduled_at: '', status: 'confirmed', notes: '' })
 
 onMounted(async () => {
-  const cookie = useCookie('admin_auth')
-  if (cookie.value !== 'true') {
+  const hasAuth = document.cookie.includes('admin_auth=true')
+  if (!hasAuth) {
     window.location.href = '/login'
     return
   }

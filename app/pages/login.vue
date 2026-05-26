@@ -28,24 +28,18 @@ const password = ref('')
 const error = ref(false)
 
 const login = async () => {
-
-
-  console.log('login called', password.value)
   try {
     const data = await $fetch('/api/login', {
       method: 'POST',
       body: { password: password.value }
     })
-    console.log('response', data)
     if (data?.ok) {
-      setTimeout(() => {
-        window.location.href = '/admin'
-      }, 300)
+      document.cookie = 'admin_auth=true; path=/; max-age=2592000'
+      window.location.href = '/admin'
     } else {
       error.value = true
     }
   } catch (e) {
-    console.error('error', e)
     error.value = true
   }
 }
