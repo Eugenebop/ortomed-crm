@@ -33,7 +33,7 @@ const login = async () => {
     body: { password: password.value }
   })
   if (data.value?.ok) {
-    await navigateTo('/admin')
+    window.location.href = '/admin'
   } else {
     error.value = true
   }
