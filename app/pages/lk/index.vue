@@ -38,6 +38,12 @@
       </div>
     </div>
 
+    <div v-else-if="inactive" class="bg-white rounded-2xl shadow-lg p-8 text-center max-w-sm w-full">
+      <div class="text-4xl mb-4">🔒</div>
+      <h2 class="text-lg font-semibold text-gray-800 mb-2">Доступ закрыт</h2>
+      <p class="text-sm text-gray-500">Обратитесь к администратору</p>
+    </div>
+
     <div v-else-if="loading" class="text-gray-400">Загрузка...</div>
   </div>
 </template>
@@ -47,6 +53,7 @@ const supabase = useSupabaseClient()
 const patient = ref(null)
 const appointments = ref([])
 const loading = ref(true)
+const inactive = ref(false)
 
 onMounted(async () => {
   const { data: { user } } = await supabase.auth.getUser()
@@ -63,6 +70,12 @@ onMounted(async () => {
 
   if (!data) {
     window.location.href = '/lk/login'
+    return
+  }
+
+  if (data.active === false) {
+    inactive.value = true
+    loading.value = false
     return
   }
 
