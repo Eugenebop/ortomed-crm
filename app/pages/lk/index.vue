@@ -12,7 +12,10 @@
               <p class="text-sm text-gray-500">{{ patient.parent_names }}</p>
             </div>
           </div>
-          <button @click="logout" class="text-xs text-gray-400 hover:text-gray-600">Выйти</button>
+          <div class="flex flex-col items-end gap-1">
+            <a href="/" class="text-xs text-blue-500 hover:text-blue-700">На сайт</a>
+            <button @click="logout" class="text-xs text-gray-400 hover:text-gray-600">Выйти</button>
+          </div>
         </div>
         <a :href="`https://wa.me/${patient.phone}`" class="flex items-center justify-center gap-2 w-full bg-green-500 hover:bg-green-600 text-white font-medium py-3 rounded-xl transition-colors">
           📞 Связаться с администратором
@@ -42,6 +45,7 @@
       <div class="text-4xl mb-4">🔒</div>
       <h2 class="text-lg font-semibold text-gray-800 mb-2">Доступ закрыт</h2>
       <p class="text-sm text-gray-500">Обратитесь к администратору</p>
+      <a href="/" class="mt-4 inline-block text-sm text-blue-500 hover:text-blue-700">← На главную</a>
     </div>
 
     <div v-else-if="loading" class="text-gray-400">Загрузка...</div>
@@ -58,43 +62,33 @@ const inactive = ref(false)
 onMounted(async () => {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) {
-    window.location.href = '/lk/login'
+    window.location.href = '/login'
     return
   }
-
-  const { data } = await supabase
-    .from('patients')
-    .select('*')
-    .eq('user_id', user.id)
-    .single()
-
+  const { data } = await supabase.from('patients').select('*').eq('user_id', user.id).single()
   if (!data) {
-    window.location.href = '/lk/login'
+    window.location.href = '/login'
     return
   }
-
   if (data.active === false) {
     inactive.value = true
     loading.value = false
     return
   }
-
   patient.value = data
   loading.value = false
-
   const { data: appts } = await supabase
     .from('appointments')
     .select('*')
     .eq('patient_id', data.id)
     .gte('scheduled_at', new Date().toISOString())
     .order('scheduled_at', { ascending: true })
-
   appointments.value = appts || []
 })
 
 const logout = async () => {
   await supabase.auth.signOut()
-  window.location.href = '/lk/login'
+  window.location.href = '/'
 }
 
 const formatDate = (dt) => new Date(dt).toLocaleString('ru-RU', {

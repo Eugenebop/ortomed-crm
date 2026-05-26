@@ -1,19 +1,16 @@
 <template>
   <div class="min-h-screen bg-white">
 
-    <!-- Навбар -->
     <nav class="border-b border-gray-100 px-6 py-4 flex items-center justify-between max-w-5xl mx-auto">
       <div class="flex items-center gap-2">
         <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">О</div>
         <span class="font-semibold text-gray-900">Ortomed</span>
       </div>
 
-      <!-- Не авторизован -->
       <a v-if="!patient" href="/login" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
         Войти
       </a>
 
-      <!-- Авторизован -->
       <div v-else class="relative">
         <button @click="menuOpen = !menuOpen" class="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg transition-colors">
           <div class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
@@ -23,7 +20,7 @@
           <span class="text-gray-400 text-xs">▾</span>
         </button>
 
-        <div v-if="menuOpen" class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-10">
+        <div v-if="menuOpen" class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-50">
           <a href="/lk" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
             👤 Личный кабинет
           </a>
@@ -34,16 +31,14 @@
       </div>
     </nav>
 
-    <!-- Герой -->
     <div class="max-w-5xl mx-auto px-6 py-20 text-center">
       <h1 class="text-4xl font-bold text-gray-900 mb-4">Ортопедическая клиника<br>для детей и взрослых</h1>
       <p class="text-lg text-gray-500 mb-8 max-w-xl mx-auto">Профессиональная помощь ортопеда и реабилитолога. Индивидуальный подход к каждому пациенту.</p>
-      <a :href="patient ? '/lk' : '/login'" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium px-8 py-3 rounded-xl transition-colors text-lg">
-        {{ patient ? 'Перейти в кабинет' : 'Личный кабинет' }}
+      <a v-if="!patient" href="/login" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium px-8 py-3 rounded-xl transition-colors text-lg">
+        Личный кабинет
       </a>
     </div>
 
-    <!-- Услуги -->
     <div class="max-w-5xl mx-auto px-6 py-12">
       <h2 class="text-2xl font-bold text-gray-900 text-center mb-10">Наши услуги</h2>
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
@@ -65,7 +60,6 @@
       </div>
     </div>
 
-    <!-- Контакты -->
     <div class="bg-gray-50 mt-12 py-12">
       <div class="max-w-5xl mx-auto px-6 text-center">
         <h2 class="text-2xl font-bold text-gray-900 mb-6">Контакты</h2>
@@ -100,13 +94,7 @@ const menuOpen = ref(false)
 onMounted(async () => {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return
-
-  const { data } = await supabase
-    .from('patients')
-    .select('name')
-    .eq('user_id', user.id)
-    .single()
-
+  const { data } = await supabase.from('patients').select('name').eq('user_id', user.id).single()
   patient.value = data
 })
 
