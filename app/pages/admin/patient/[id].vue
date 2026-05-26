@@ -2,36 +2,49 @@
   <div class="min-h-screen bg-gray-50" v-if="authorized">
     <div class="max-w-3xl mx-auto px-4 py-8">
 
-      <div class="flex items-center gap-3 mb-6">
-        <a href="/admin" class="text-gray-400 hover:text-gray-600 text-sm">← Назад</a>
-      </div>
+      <a href="/admin" class="text-gray-400 hover:text-gray-600 text-sm mb-6 inline-block">← Назад</a>
 
       <!-- Инфо о пациенте -->
       <div v-if="patient" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-        <div class="flex items-start justify-between">
-          <div class="flex items-center gap-4">
-            <div class="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center text-2xl font-bold text-blue-600">
-              {{ patient.name[0] }}
-            </div>
-            <div>
-              <h1 class="text-xl font-bold text-gray-900">{{ patient.name }}</h1>
-              <p class="text-sm text-gray-500">{{ patient.parent_names }}</p>
-              <p class="text-sm text-gray-500">{{ patient.phone }}</p>
-            </div>
-          </div>
-          <div class="flex flex-col items-end gap-2">
+        <div class="flex items-start justify-between mb-6">
+          <h2 class="text-lg font-semibold text-gray-800">Информация о пациенте</h2>
+          <div class="flex items-center gap-3">
             <span :class="patient.active !== false ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'" class="px-3 py-1 rounded-full text-xs font-medium">
               {{ patient.active !== false ? 'Активен' : 'Неактивен' }}
             </span>
-            <button @click="toggleActive" :class="patient.active !== false ? 'text-red-500 hover:text-red-700' : 'text-green-500 hover:text-green-700'" class="text-xs font-medium">
+            <button @click="toggleActive" :class="patient.active !== false ? 'text-red-500 hover:text-red-700' : 'text-green-500 hover:text-green-700'" class="text-xs font-medium border rounded-lg px-3 py-1.5" :style="patient.active !== false ? 'border-color: #fca5a5' : 'border-color: #86efac'">
               {{ patient.active !== false ? 'Деактивировать' : 'Активировать' }}
             </button>
           </div>
         </div>
+
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Имя пациента</label>
+            <input v-model="editForm.name" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Родители</label>
+            <input v-model="editForm.parent_names" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Телефон</label>
+            <input v-model="editForm.phone" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Email</label>
+            <input v-model="editForm.email" type="email" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+          </div>
+        </div>
+
+        <div class="flex gap-3 mt-4">
+          <button @click="savePatient" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">Сохранить</button>
+          <button @click="resetPassword" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors">Сбросить пароль</button>
+        </div>
       </div>
 
       <!-- Занятия -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <h2 class="text-base font-semibold text-gray-800">Занятия</h2>
           <button @click="showApptForm = !showApptForm" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
@@ -39,7 +52,6 @@
           </button>
         </div>
 
-        <!-- Форма добавления занятия -->
         <div v-if="showApptForm" class="px-6 py-4 border-b border-gray-100 bg-blue-50">
           <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <div>
@@ -60,28 +72,23 @@
             </div>
           </div>
           <div class="flex gap-2 mt-3">
-            <button @click="addAppointment" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition-colors">Сохранить</button>
-            <button @click="showApptForm = false" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-1.5 rounded-lg text-sm font-medium transition-colors">Отмена</button>
+            <button @click="addAppointment" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium">Сохранить</button>
+            <button @click="showApptForm = false" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-1.5 rounded-lg text-sm font-medium">Отмена</button>
           </div>
         </div>
 
-        <!-- Список занятий -->
         <div v-if="appointments.length > 0">
           <div v-for="appt in appointments" :key="appt.id" class="px-6 py-4 border-b border-gray-50 last:border-0">
             <div v-if="editingAppt?.id === appt.id" class="grid grid-cols-1 gap-3 sm:grid-cols-3">
-              <div>
-                <input v-model="editingAppt.scheduled_at_local" type="datetime-local" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"/>
-              </div>
-              <div>
-                <select v-model="editingAppt.status" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <option value="pending">Ожидает</option>
-                  <option value="confirmed">Подтверждено</option>
-                  <option value="cancelled">Отменено</option>
-                </select>
-              </div>
+              <input v-model="editingAppt.scheduled_at_local" type="datetime-local" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+              <select v-model="editingAppt.status" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="pending">Ожидает</option>
+                <option value="confirmed">Подтверждено</option>
+                <option value="cancelled">Отменено</option>
+              </select>
               <div class="flex gap-2">
                 <button @click="saveAppt" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-xs font-medium">Сохранить</button>
-                <button @click="editingAppt = null" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg text-xs font-medium">Отмена</button>
+                <button @click="editingAppt = null" class="bg-gray-100 text-gray-700 px-3 py-2 rounded-lg text-xs font-medium">Отмена</button>
               </div>
             </div>
             <div v-else class="flex items-center justify-between">
@@ -94,9 +101,7 @@
                   'bg-green-100 text-green-700': appt.status === 'confirmed',
                   'bg-yellow-100 text-yellow-700': appt.status === 'pending',
                   'bg-red-100 text-red-700': appt.status === 'cancelled',
-                }" class="px-2 py-1 rounded-full text-xs font-medium">
-                  {{ statusLabel(appt.status) }}
-                </span>
+                }" class="px-2 py-1 rounded-full text-xs font-medium">{{ statusLabel(appt.status) }}</span>
                 <button @click="startEdit(appt)" class="text-xs text-blue-500 hover:text-blue-700">Изменить</button>
                 <button @click="deleteAppt(appt.id)" class="text-xs text-red-400 hover:text-red-600">Удалить</button>
               </div>
@@ -120,6 +125,7 @@ const showApptForm = ref(false)
 const editingAppt = ref(null)
 const toast = ref('')
 const authorized = ref(false)
+const editForm = ref({ name: '', parent_names: '', phone: '', email: '' })
 const apptForm = ref({ scheduled_at: '', status: 'confirmed', notes: '' })
 
 onMounted(async () => {
@@ -132,6 +138,12 @@ onMounted(async () => {
 
   const { data: p } = await supabase.from('patients').select('*').eq('id', route.params.id).single()
   patient.value = p
+  editForm.value = {
+    name: p.name,
+    parent_names: p.parent_names,
+    phone: p.phone,
+    email: p.email || ''
+  }
 
   await loadAppointments()
 })
@@ -143,6 +155,37 @@ const loadAppointments = async () => {
     .eq('patient_id', route.params.id)
     .order('scheduled_at', { ascending: true })
   appointments.value = data || []
+}
+
+const savePatient = async () => {
+  await supabase.from('patients').update({
+    name: editForm.value.name,
+    parent_names: editForm.value.parent_names,
+    phone: editForm.value.phone,
+  }).eq('id', patient.value.id)
+  patient.value = { ...patient.value, ...editForm.value }
+  showToast('Данные сохранены')
+}
+
+const resetPassword = async () => {
+  const { data: { user } } = await supabase.auth.admin?.getUserById?.(patient.value.user_id) || {}
+  const email = editForm.value.email || patient.value.email
+  if (!email) {
+    showToast('Email не указан')
+    return
+  }
+  await $fetch('/api/reset-password', {
+    method: 'POST',
+    body: { email }
+  })
+  showToast('Письмо со сбросом пароля отправлено')
+}
+
+const toggleActive = async () => {
+  const newVal = patient.value.active === false ? true : false
+  await supabase.from('patients').update({ active: newVal }).eq('id', patient.value.id)
+  patient.value.active = newVal
+  showToast(newVal ? 'Пациент активирован' : 'Пациент деактивирован')
 }
 
 const addAppointment = async () => {
@@ -180,13 +223,6 @@ const deleteAppt = async (id) => {
   await supabase.from('appointments').delete().eq('id', id)
   await loadAppointments()
   showToast('Занятие удалено')
-}
-
-const toggleActive = async () => {
-  const newVal = patient.value.active === false ? true : false
-  await supabase.from('patients').update({ active: newVal }).eq('id', patient.value.id)
-  patient.value.active = newVal
-  showToast(newVal ? 'Пациент активирован' : 'Пациент деактивирован')
 }
 
 const formatDate = (dt) => new Date(dt).toLocaleString('ru-RU', {
