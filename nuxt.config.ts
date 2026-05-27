@@ -3,5 +3,12 @@ export default defineNuxtConfig({
   modules: ['@nuxtjs/supabase', '@nuxtjs/tailwindcss'],
   supabase: {
     redirect: false
+  },
+  app: {
+    head: {
+      link: [
+        { rel: 'icon', type: 'image/png', href: '/images/icon.png' }
+      ]
+    }
   }
 })
