@@ -186,14 +186,14 @@
                 <span class="ci-icon">📍</span>
                 <div>
                   <p class="ci-label">Адрес</p>
-                  <p class="ci-val">Батуми, ул. Горгиладзе 17</p>
+                  <p class="ci-val">Батуми, ул. Селима Химшиашвили, 40</p>
                 </div>
               </div>
               <div class="contact-item">
                 <span class="ci-icon">📞</span>
                 <div>
                   <p class="ci-label">Телефон</p>
-                  <a href="tel:+995591155993" class="ci-val ci-link">+995 591 155 993</a>
+                  <a href="tel:+995 557 134 342" class="ci-val ci-link">+995 591 155 993</a>
                 </div>
               </div>
               <div class="contact-item">
@@ -218,7 +218,7 @@
           </div>
           <div class="map-wrap">
             <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2983.5!2d41.6417!3d41.6414!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDHCsDM4JzI5LjAiTiA0McKwMzgnMzAuMCJF!5e0!3m2!1sru!2sge!4v1"
+                src="https://maps.app.goo.gl/VTeYifr6DjFBtNbv9"
                 width="100%"
                 height="100%"
                 style="border:0;"
