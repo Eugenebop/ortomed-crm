@@ -23,6 +23,7 @@
         </a>
       </div>
 
+      <!-- Абонемент -->
       <div v-if="subscription" class="bg-white rounded-2xl shadow-lg p-6 mb-4">
         <h2 class="text-base font-semibold text-gray-800 mb-4">Абонемент</h2>
         <div class="space-y-2 mb-4">
@@ -39,26 +40,28 @@
             <span class="font-medium text-gray-900">{{ subscription.price }} ₾</span>
           </div>
         </div>
+
         <div class="grid grid-cols-2 gap-3">
-          <div class="bg-green-50 rounded-xl p-3 text-center">
+          <button @click="openModal('visited')" class="bg-green-50 hover:bg-green-100 rounded-xl p-3 text-center transition-colors">
             <p class="text-2xl font-bold text-green-600">{{ stats.visited }}</p>
             <p class="text-xs text-gray-500 mt-1">Посещено</p>
-          </div>
-          <div class="bg-blue-50 rounded-xl p-3 text-center">
+          </button>
+          <button @click="openModal('remaining')" class="bg-blue-50 hover:bg-blue-100 rounded-xl p-3 text-center transition-colors">
             <p class="text-2xl font-bold text-blue-600">{{ stats.remaining }}</p>
             <p class="text-xs text-gray-500 mt-1">Осталось</p>
-          </div>
-          <div class="bg-red-50 rounded-xl p-3 text-center">
+          </button>
+          <button @click="openModal('cancelled')" class="bg-red-50 hover:bg-red-100 rounded-xl p-3 text-center transition-colors">
             <p class="text-2xl font-bold text-red-500">{{ stats.cancelled }}</p>
             <p class="text-xs text-gray-500 mt-1">Отменено</p>
-          </div>
-          <div class="bg-yellow-50 rounded-xl p-3 text-center">
+          </button>
+          <button @click="openModal('pending')" class="bg-yellow-50 hover:bg-yellow-100 rounded-xl p-3 text-center transition-colors">
             <p class="text-2xl font-bold text-yellow-500">{{ stats.pending }}</p>
             <p class="text-xs text-gray-500 mt-1">Ожидает</p>
-          </div>
+          </button>
         </div>
       </div>
 
+      <!-- Ближайшие занятия -->
       <div class="bg-white rounded-2xl shadow-lg p-6">
         <h2 class="text-base font-semibold text-gray-800 mb-4">Ближайшие занятия</h2>
         <div v-if="upcomingAppointments.length > 0" class="space-y-3">
@@ -75,6 +78,30 @@
           </div>
         </div>
         <div v-else class="text-gray-400 text-sm">Занятий не запланировано</div>
+      </div>
+    </div>
+
+    <!-- Модальное окно -->
+    <div v-if="modal" class="fixed inset-0 bg-black bg-opacity-40 flex items-end justify-center z-50 p-4" @click.self="modal = null">
+      <div class="bg-white rounded-2xl w-full max-w-sm p-6 mb-4">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-semibold text-gray-900">{{ modalTitle }}</h3>
+          <button @click="modal = null" class="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+        </div>
+        <div v-if="modalAppointments.length > 0" class="space-y-3 max-h-80 overflow-y-auto">
+          <div v-for="appt in modalAppointments" :key="appt.id" class="border border-gray-100 rounded-xl p-3">
+            <p class="font-medium text-gray-900 text-sm">{{ formatDate(appt.scheduled_at) }}</p>
+            <span class="inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-medium"
+              :class="{
+                'bg-green-100 text-green-700': appt.status === 'confirmed',
+                'bg-yellow-100 text-yellow-700': appt.status === 'pending',
+                'bg-red-100 text-red-700': appt.status === 'cancelled',
+              }">
+              {{ statusLabel(appt.status) }}
+            </span>
+          </div>
+        </div>
+        <div v-else class="text-gray-400 text-sm text-center py-4">Нет занятий</div>
       </div>
     </div>
 
@@ -96,6 +123,7 @@ const allAppointments = ref([])
 const subscription = ref(null)
 const loading = ref(true)
 const inactive = ref(false)
+const modal = ref(null)
 
 const upcomingAppointments = computed(() =>
   allAppointments.value.filter(a => new Date(a.scheduled_at) >= new Date())
@@ -105,10 +133,28 @@ const stats = computed(() => {
   const total = subscription.value?.total_sessions || 0
   const visited = allAppointments.value.filter(a => a.status === 'confirmed' && new Date(a.scheduled_at) < new Date()).length
   const cancelled = allAppointments.value.filter(a => a.status === 'cancelled').length
-  const pending = allAppointments.value.filter(a => a.status === 'pending').length
+  const pending = allAppointments.value.filter(a => a.status === 'pending' && new Date(a.scheduled_at) >= new Date()).length
   const remaining = Math.max(0, total - visited)
   return { visited, cancelled, pending, remaining }
 })
+
+const modalTitle = computed(() => ({
+  visited: 'Посещённые занятия',
+  remaining: 'Оставшиеся занятия',
+  cancelled: 'Отменённые занятия',
+  pending: 'Ожидают подтверждения'
+}[modal.value] || ''))
+
+const modalAppointments = computed(() => {
+  const now = new Date()
+  if (modal.value === 'visited') return allAppointments.value.filter(a => a.status === 'confirmed' && new Date(a.scheduled_at) < now)
+  if (modal.value === 'remaining') return allAppointments.value.filter(a => new Date(a.scheduled_at) >= now && a.status !== 'cancelled')
+  if (modal.value === 'cancelled') return allAppointments.value.filter(a => a.status === 'cancelled')
+  if (modal.value === 'pending') return allAppointments.value.filter(a => a.status === 'pending' && new Date(a.scheduled_at) >= now)
+  return []
+})
+
+const openModal = (type) => { modal.value = type }
 
 onMounted(async () => {
   const { data: { user } } = await supabase.auth.getUser()
