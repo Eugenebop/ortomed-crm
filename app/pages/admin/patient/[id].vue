@@ -4,6 +4,7 @@
 
       <a href="/admin" class="text-gray-400 hover:text-gray-600 text-sm mb-6 inline-block">← Назад</a>
 
+      <!-- Инфо о пациенте -->
       <div v-if="patient" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
         <div class="flex items-start justify-between mb-6">
           <h2 class="text-lg font-semibold text-gray-800">Информация о пациенте</h2>
@@ -42,6 +43,86 @@
         </div>
       </div>
 
+      <!-- Абонемент -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-base font-semibold text-gray-800">Абонемент</h2>
+          <button @click="showSubForm = !showSubForm" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
+            {{ subscription ? 'Обновить' : '+ Добавить' }}
+          </button>
+        </div>
+
+        <div v-if="showSubForm" class="bg-blue-50 rounded-xl p-4 mb-4">
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div>
+              <label class="block text-xs font-medium text-gray-700 mb-1">Название плана</label>
+              <input v-model="subForm.plan" placeholder="SUB1, Базовый..." class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-700 mb-1">Цена</label>
+              <input v-model="subForm.price" type="number" placeholder="180" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-700 mb-1">Начало</label>
+              <input v-model="subForm.starts_at" type="date" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-700 mb-1">Конец</label>
+              <input v-model="subForm.ends_at" type="date" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-700 mb-1">Всего занятий</label>
+              <input v-model="subForm.total_sessions" type="number" placeholder="8" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+            </div>
+          </div>
+          <div class="flex gap-2 mt-3">
+            <button @click="saveSub" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium">Сохранить</button>
+            <button @click="showSubForm = false" class="bg-gray-100 text-gray-700 px-4 py-1.5 rounded-lg text-sm font-medium">Отмена</button>
+          </div>
+        </div>
+
+        <div v-if="subscription" class="space-y-2">
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-500">План</span>
+            <span class="font-medium text-gray-900">{{ subscription.plan }}</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-500">Период</span>
+            <span class="font-medium text-gray-900">{{ formatDateShort(subscription.starts_at) }} — {{ formatDateShort(subscription.ends_at) }}</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-500">Цена</span>
+            <span class="font-medium text-gray-900">{{ subscription.price }} ₾</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-500">Всего занятий</span>
+            <span class="font-medium text-gray-900">{{ subscription.total_sessions }}</span>
+          </div>
+        </div>
+        <div v-else class="text-gray-400 text-sm">Абонемент не добавлен</div>
+
+        <!-- Статистика -->
+        <div v-if="subscription" class="mt-4 grid grid-cols-2 gap-3">
+          <div class="bg-green-50 rounded-xl p-3 text-center">
+            <p class="text-2xl font-bold text-green-600">{{ stats.visited }}</p>
+            <p class="text-xs text-gray-500 mt-1">Посещено</p>
+          </div>
+          <div class="bg-blue-50 rounded-xl p-3 text-center">
+            <p class="text-2xl font-bold text-blue-600">{{ stats.remaining }}</p>
+            <p class="text-xs text-gray-500 mt-1">Осталось</p>
+          </div>
+          <div class="bg-red-50 rounded-xl p-3 text-center">
+            <p class="text-2xl font-bold text-red-500">{{ stats.cancelled }}</p>
+            <p class="text-xs text-gray-500 mt-1">Отменено</p>
+          </div>
+          <div class="bg-yellow-50 rounded-xl p-3 text-center">
+            <p class="text-2xl font-bold text-yellow-500">{{ stats.pending }}</p>
+            <p class="text-xs text-gray-500 mt-1">Ожидает</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Занятия -->
       <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <h2 class="text-base font-semibold text-gray-800">Занятия</h2>
@@ -69,7 +150,7 @@
           </div>
           <div class="flex gap-2 mt-3">
             <button @click="addAppointment" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium">Сохранить</button>
-            <button @click="showApptForm = false" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-1.5 rounded-lg text-sm font-medium">Отмена</button>
+            <button @click="showApptForm = false" class="bg-gray-100 text-gray-700 px-4 py-1.5 rounded-lg text-sm font-medium">Отмена</button>
           </div>
         </div>
 
@@ -117,12 +198,24 @@ const route = useRoute()
 const supabase = useSupabaseClient()
 const patient = ref(null)
 const appointments = ref([])
+const subscription = ref(null)
 const showApptForm = ref(false)
+const showSubForm = ref(false)
 const editingAppt = ref(null)
 const toast = ref('')
 const authorized = ref(false)
 const editForm = ref({ name: '', parent_names: '', phone: '', email: '' })
 const apptForm = ref({ scheduled_at: '', status: 'confirmed', notes: '' })
+const subForm = ref({ plan: '', price: '', starts_at: '', ends_at: '', total_sessions: 8 })
+
+const stats = computed(() => {
+  const total = subscription.value?.total_sessions || 0
+  const visited = appointments.value.filter(a => a.status === 'confirmed' && new Date(a.scheduled_at) < new Date()).length
+  const cancelled = appointments.value.filter(a => a.status === 'cancelled').length
+  const pending = appointments.value.filter(a => a.status === 'pending').length
+  const remaining = Math.max(0, total - visited)
+  return { visited, cancelled, pending, remaining }
+})
 
 onMounted(async () => {
   const hasAuth = document.cookie.includes('admin_auth=true')
@@ -137,53 +230,37 @@ onMounted(async () => {
 
   let email = ''
   if (p.user_id) {
-    const res = await $fetch('/api/get-user-email', {
-      method: 'POST',
-      body: { user_id: p.user_id }
-    })
+    const res = await $fetch('/api/get-user-email', { method: 'POST', body: { user_id: p.user_id } })
     email = res.email || ''
   }
 
-  editForm.value = {
-    name: p.name,
-    parent_names: p.parent_names,
-    phone: p.phone,
-    email
+  editForm.value = { name: p.name, parent_names: p.parent_names, phone: p.phone, email }
+
+  const { data: sub } = await supabase.from('subscriptions').select('*').eq('patient_id', route.params.id).order('created_at', { ascending: false }).limit(1).single()
+  if (sub) {
+    subscription.value = sub
+    subForm.value = { plan: sub.plan, price: sub.price, starts_at: sub.starts_at, ends_at: sub.ends_at, total_sessions: sub.total_sessions }
   }
 
   await loadAppointments()
 })
 
 const loadAppointments = async () => {
-  const { data } = await supabase
-    .from('appointments')
-    .select('*')
-    .eq('patient_id', route.params.id)
-    .order('scheduled_at', { ascending: true })
+  const { data } = await supabase.from('appointments').select('*').eq('patient_id', route.params.id).order('scheduled_at', { ascending: true })
   appointments.value = data || []
 }
 
 const savePatient = async () => {
-  await supabase.from('patients').update({
-    name: editForm.value.name,
-    parent_names: editForm.value.parent_names,
-    phone: editForm.value.phone,
-  }).eq('id', patient.value.id)
+  await supabase.from('patients').update({ name: editForm.value.name, parent_names: editForm.value.parent_names, phone: editForm.value.phone }).eq('id', patient.value.id)
   patient.value = { ...patient.value, ...editForm.value }
   showToast('Данные сохранены')
 }
 
 const resetPassword = async () => {
   const email = editForm.value.email
-  if (!email) {
-    showToast('Email не указан')
-    return
-  }
-  await $fetch('/api/reset-password', {
-    method: 'POST',
-    body: { email }
-  })
-  showToast('Письмо со сбросом пароля отправлено')
+  if (!email) { showToast('Email не указан'); return }
+  await $fetch('/api/reset-password', { method: 'POST', body: { email } })
+  showToast('Письмо отправлено')
 }
 
 const toggleActive = async () => {
@@ -193,14 +270,22 @@ const toggleActive = async () => {
   showToast(newVal ? 'Пациент активирован' : 'Пациент деактивирован')
 }
 
+const saveSub = async () => {
+  if (subscription.value) {
+    await supabase.from('subscriptions').update(subForm.value).eq('id', subscription.value.id)
+  } else {
+    const { data } = await supabase.from('subscriptions').insert({ ...subForm.value, patient_id: route.params.id }).select().single()
+    subscription.value = data
+  }
+  const { data: sub } = await supabase.from('subscriptions').select('*').eq('patient_id', route.params.id).order('created_at', { ascending: false }).limit(1).single()
+  subscription.value = sub
+  showSubForm.value = false
+  showToast('Абонемент сохранён')
+}
+
 const addAppointment = async () => {
   if (!apptForm.value.scheduled_at) return
-  await supabase.from('appointments').insert({
-    patient_id: route.params.id,
-    scheduled_at: new Date(apptForm.value.scheduled_at).toISOString(),
-    status: apptForm.value.status,
-    notes: apptForm.value.notes
-  })
+  await supabase.from('appointments').insert({ patient_id: route.params.id, scheduled_at: new Date(apptForm.value.scheduled_at).toISOString(), status: apptForm.value.status, notes: apptForm.value.notes })
   apptForm.value = { scheduled_at: '', status: 'confirmed', notes: '' }
   showApptForm.value = false
   await loadAppointments()
@@ -214,10 +299,7 @@ const startEdit = (appt) => {
 }
 
 const saveAppt = async () => {
-  await supabase.from('appointments').update({
-    scheduled_at: new Date(editingAppt.value.scheduled_at_local).toISOString(),
-    status: editingAppt.value.status
-  }).eq('id', editingAppt.value.id)
+  await supabase.from('appointments').update({ scheduled_at: new Date(editingAppt.value.scheduled_at_local).toISOString(), status: editingAppt.value.status }).eq('id', editingAppt.value.id)
   editingAppt.value = null
   await loadAppointments()
   showToast('Занятие обновлено')
@@ -230,14 +312,8 @@ const deleteAppt = async (id) => {
   showToast('Занятие удалено')
 }
 
-const formatDate = (dt) => new Date(dt).toLocaleString('ru-RU', {
-  day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
-})
-
+const formatDate = (dt) => new Date(dt).toLocaleString('ru-RU', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+const formatDateShort = (d) => new Date(d).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' })
 const statusLabel = (s) => ({ pending: 'Ожидает', confirmed: 'Подтверждено', cancelled: 'Отменено' }[s] || s)
-
-const showToast = (msg) => {
-  toast.value = msg
-  setTimeout(() => toast.value = '', 3000)
-}
+const showToast = (msg) => { toast.value = msg; setTimeout(() => toast.value = '', 3000) }
 </script>
