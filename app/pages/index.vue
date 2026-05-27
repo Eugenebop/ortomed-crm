@@ -131,6 +131,40 @@
       </div>
     </section>
 
+    <!-- ГАЛЕРЕЯ -->
+    <section class="gallery">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">Наша клиника</span>
+          <h2>Современное оборудование и уютная атмосфера</h2>
+        </div>
+        <div class="gallery-grid">
+          <div class="gallery-main">
+            <img src="/images/clinic-reception.jpg" alt="Зона ожидания Ortomed" />
+            <div class="gallery-label">Зона ожидания</div>
+          </div>
+          <div class="gallery-side">
+            <div class="gallery-item">
+              <img src="/images/clinic-cabinet.jpg" alt="Кабинет врача" />
+              <div class="gallery-label">Кабинет врача</div>
+            </div>
+            <div class="gallery-item">
+              <img src="/images/clinic-insoles.jpg" alt="Отдел ортопедических изделий" />
+              <div class="gallery-label">Ортопедические изделия</div>
+            </div>
+            <div class="gallery-item">
+              <img src="/images/clinic-kids.jpg" alt="Зал ЛФК для детей" />
+              <div class="gallery-label">Зал ЛФК для детей</div>
+            </div>
+            <div class="gallery-item">
+              <img src="/images/clinic-pedicure.jpg" alt="Кабинет педикюра" />
+              <div class="gallery-label">Кабинет педикюра</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- КОМАНДА -->
     <section class="team" id="team">
       <div class="container">
@@ -1030,6 +1064,100 @@ const prices = [
   font-family: sans-serif;
   font-size: 0.75rem;
   color: #444;
+}
+
+.gallery {
+  padding: 7rem 0;
+  background: #fafaf8;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 1rem;
+  height: 560px;
+}
+
+.gallery-main {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.gallery-main img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+
+.gallery-main:hover img {
+  transform: scale(1.03);
+}
+
+.gallery-side {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.gallery-item {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+
+.gallery-item:hover img {
+  transform: scale(1.05);
+}
+
+.gallery-label {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0.6rem 1rem;
+  background: linear-gradient(transparent, rgba(0,0,0,0.55));
+  color: #fff;
+  font-family: sans-serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+}
+
+@media (max-width: 900px) {
+  .gallery-grid {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+
+  .gallery-main {
+    height: 280px;
+  }
+
+  .gallery-side {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .gallery-item {
+    height: 160px;
+  }
+}
+
+@media (max-width: 500px) {
+  .gallery-side {
+    grid-template-columns: 1fr;
+  }
+
+  .gallery-item {
+    height: 200px;
+  }
 }
 
 /* ─── RESPONSIVE ──────────────────────────── */
