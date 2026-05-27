@@ -83,7 +83,8 @@
         <div class="floating-card card-2">
           <span class="fc-icon">📋</span>
           <div>
-            <p class="fc-title">Личный кабинет</p>
+            <a href="/login" class="fc-title fc-link">Личный кабинет</a>
+<!--            <p class="fc-title">Личный кабинет</p>-->
             <p class="fc-sub">онлайн-запись и история</p>
           </div>
         </div>
