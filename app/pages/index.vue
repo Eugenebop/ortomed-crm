@@ -218,15 +218,15 @@
             </a>
           </div>
           <div class="map-wrap">
-            <iframe
-                src="https://maps.app.goo.gl/VTeYifr6DjFBtNbv9"
-                width="100%"
-                height="100%"
-                style="border:0;"
-                allowfullscreen=""
-                loading="lazy"
-                referrerpolicy="no-referrer-when-downgrade"
-            ></iframe>
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d513.3573861761422!2d41.63002611071586!3d41.64117799248179!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x406787004f47aa79%3A0x9db42d077d13a750!2sSuper%20Jump!5e1!3m2!1sru!2sge!4v1779901085849!5m2!1sru!2sge"
+                    width="600"
+                    height="450"
+                    style="border:0;"
+                    allowfullscreen=""
+                    loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade">
+
+            </iframe>
           </div>
         </div>
       </div>
