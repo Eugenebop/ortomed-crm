@@ -23,7 +23,6 @@
         </a>
       </div>
 
-      <!-- Абонемент -->
       <div v-if="subscription" class="bg-white rounded-2xl shadow-lg p-6 mb-4">
         <h2 class="text-base font-semibold text-gray-800 mb-4">Абонемент</h2>
         <div class="space-y-2 mb-4">
@@ -60,11 +59,10 @@
         </div>
       </div>
 
-      <!-- Занятия -->
       <div class="bg-white rounded-2xl shadow-lg p-6">
-        <h2 class="text-base font-semibold text-gray-800 mb-4">Занятия</h2>
-        <div v-if="appointments.length > 0" class="space-y-3">
-          <div v-for="appt in appointments" :key="appt.id" class="border border-gray-100 rounded-xl p-4">
+        <h2 class="text-base font-semibold text-gray-800 mb-4">Ближайшие занятия</h2>
+        <div v-if="upcomingAppointments.length > 0" class="space-y-3">
+          <div v-for="appt in upcomingAppointments" :key="appt.id" class="border border-gray-100 rounded-xl p-4">
             <p class="font-semibold text-gray-900">{{ formatDate(appt.scheduled_at) }}</p>
             <span class="inline-block mt-1 px-3 py-1 rounded-full text-xs font-medium"
               :class="{
@@ -94,16 +92,20 @@
 <script setup>
 const supabase = useSupabaseClient()
 const patient = ref(null)
-const appointments = ref([])
+const allAppointments = ref([])
 const subscription = ref(null)
 const loading = ref(true)
 const inactive = ref(false)
 
+const upcomingAppointments = computed(() =>
+  allAppointments.value.filter(a => new Date(a.scheduled_at) >= new Date())
+)
+
 const stats = computed(() => {
   const total = subscription.value?.total_sessions || 0
-  const visited = appointments.value.filter(a => a.status === 'confirmed' && new Date(a.scheduled_at) < new Date()).length
-  const cancelled = appointments.value.filter(a => a.status === 'cancelled').length
-  const pending = appointments.value.filter(a => a.status === 'pending').length
+  const visited = allAppointments.value.filter(a => a.status === 'confirmed' && new Date(a.scheduled_at) < new Date()).length
+  const cancelled = allAppointments.value.filter(a => a.status === 'cancelled').length
+  const pending = allAppointments.value.filter(a => a.status === 'pending').length
   const remaining = Math.max(0, total - visited)
   return { visited, cancelled, pending, remaining }
 })
@@ -123,8 +125,8 @@ onMounted(async () => {
   const { data: sub } = await supabase.from('subscriptions').select('*').eq('patient_id', p.id).order('created_at', { ascending: false }).limit(1).single()
   subscription.value = sub || null
 
-  const { data: appts } = await supabase.from('appointments').select('*').eq('patient_id', p.id).gte('scheduled_at', new Date().toISOString()).order('scheduled_at', { ascending: true })
-  appointments.value = appts || []
+  const { data: appts } = await supabase.from('appointments').select('*').eq('patient_id', p.id).order('scheduled_at', { ascending: true })
+  allAppointments.value = appts || []
 })
 
 const logout = async () => {
