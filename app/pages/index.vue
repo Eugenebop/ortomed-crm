@@ -49,7 +49,7 @@
         <h1 class="hero-title">Ортопедия<br><em>нового уровня</em></h1>
         <p class="hero-desc">Диагностика и лечение заболеваний опорно-двигательного аппарата. Индивидуальный подход к каждому пациенту.</p>
         <div class="hero-btns">
-          <a href="https://wa.me/995599112233" class="btn-primary" target="_blank">Записаться на приём</a>
+          <a href="https://dikidi.app/785091?p=3.pi-po-ss-sd&o=2&s=16459492&rl=0_0" class="btn-primary" target="_blank">Записаться на приём</a>
           <a href="#services" class="btn-ghost">Наши услуги</a>
         </div>
         <div class="hero-stats">
@@ -103,7 +103,7 @@
             <div class="service-icon">{{ s.icon }}</div>
             <h3>{{ s.title }}</h3>
             <p>{{ s.desc }}</p>
-            <a href="https://wa.me/995599112233" class="service-link" target="_blank">Записаться →</a>
+            <a href="https://dikidi.app/785091?p=3.pi-po-ss-sd&o=2&s=16459492&rl=0_0" class="service-link" target="_blank">Записаться →</a>
           </div>
         </div>
       </div>
@@ -213,7 +213,7 @@
                 </div>
               </div>
             </div>
-            <a href="https://wa.me/995591155993" class="btn-primary" target="_blank" style="margin-top: 2rem; display: inline-block;">
+            <a href="https://dikidi.app/785091?p=3.pi-po-ss-sd&o=2&s=16459492&rl=0_0" class="btn-primary" target="_blank" style="margin-top: 2rem; display: inline-block;">
               Записаться онлайн
             </a>
           </div>
@@ -246,7 +246,7 @@
           <a href="#contacts">Контакты</a>
           <a href="/login">Личный кабинет</a>
         </div>
-        <p class="footer-copy">© 2024 Ortomed. Все права защищены.</p>
+        <p class="footer-copy">© 2026 Ortomed. Все права защищены.</p>
       </div>
     </footer>
 
